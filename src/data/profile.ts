@@ -1,0 +1,41 @@
+export const profile = {
+  name: "Mikael Bohime",
+  firstName: "Mikael",
+  initials: "MB",
+  role: "Développeur Logiciel",
+  tagline: "Des solutions digitales premium qui génèrent des résultats.",
+  bio: "Salut, je suis Mikael... Fort de plus de quatre ans d'expérience, je crée des interfaces haut de gamme qui aident les entreprises à se démarquer, à gagner en compétitivité et à atteindre leurs objectifs financiers.",
+  longBio:
+    "Je suis un développeur full-stack spécialisé dans la création d'expériences digitales modernes, responsives et centrées sur l'utilisateur. Passionné par le code propre et les solutions élégantes, je transforme des problèmes complexes en applications simples, belles et intuitives. Du concept au déploiement, je travaille en étroite collaboration avec mes clients pour donner vie à leurs visions.",
+  photo: "/images/profile.jpg",
+  location: "Cotonou, Bénin",
+  email: "mikaelbohime8@gmail.com",
+  phone: "+229 XX XX XX XX",
+  availability: "Disponible pour de nouveaux projets",
+  spotsLeft: "Plus que 3 places",
+  cvUrl: "/cv/mikael-bohime-cv.pdf",
+  socialLinks: {
+    github: "https://github.com/mikaelbohime",
+    linkedin: "https://linkedin.com/in/mikaelbohime",
+    twitter: "https://twitter.com/mikaelbohime",
+    email: "mailto:mikaelbohime8@gmail.com",
+  },
+  clients: [
+    { name: "FinTrack", logo: "FinTrack" },
+    { name: "ShopVista", logo: "ShopVista" },
+    { name: "Taskify", logo: "Taskify" },
+    { name: "TechLab", logo: "TechLab" },
+    { name: "InnoSoft", logo: "InnoSoft" },
+  ],
+  stats: [
+    { label: "Clients Satisfaits", value: 20, suffix: "+" },
+    { label: "Projets Réalisés", value: 20, suffix: "+" },
+    { label: "Années d'Expérience", value: 4, suffix: "+" },
+    { label: "Taux de Satisfaction", value: 99, suffix: "%" },
+  ],
+  floatingStats: [
+    { label: "Années d'Expérience", value: 4, suffix: "+" },
+    { label: "Projets Réalisés", value: 20, suffix: "+" },
+    { label: "Satisfaction Client", value: 99, suffix: "%" },
+  ],
+};
