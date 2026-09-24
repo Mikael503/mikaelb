@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getStoreFresh, generateId } from "@/lib/data-store";
+import {
+  getStoreFresh,
+  saveStore,
+  generateId,
+} from "@/lib/data-store";
 
 const contactSchema = z.object({
   name: z
@@ -108,8 +112,8 @@ export async function POST(req: NextRequest) {
 
     const { name, email, subject, message } = parsed.data;
 
-    // Stocker le message dans le data-store
-    const store = getStoreFresh();
+    // Stocker le message dans le data-store (Supabase ou JSON local)
+    const store = await getStoreFresh();
     const msg = {
       id: generateId(),
       name,
@@ -120,8 +124,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
     store.messages = [msg, ...store.messages];
-    const { writeStoreToFile } = await import("@/lib/data-store");
-    writeStoreToFile(store);
+    await saveStore(store);
 
     // Envoyer l'email
     await sendContactEmail(name, email, subject, message);

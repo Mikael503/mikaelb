@@ -1,5 +1,5 @@
 import {
-  getStoreFresh,
+  getStore,
   storeFileExists,
   type Profile,
   type Project,
@@ -7,6 +7,7 @@ import {
   type Settings,
   type Stat,
 } from "./data-store";
+import { isSupabaseConfigured } from "./supabase";
 import { profile as staticProfile } from "@/data/profile";
 import { projects as staticProjects } from "@/data/projects";
 import { skills as staticSkills } from "@/data/skills";
@@ -120,13 +121,13 @@ function profileFromStatic(): PublicProfile {
 // Chargement des données publiques
 // ---------------------------------------------------------------------------
 //
-// - Si data/portfolio.json n'existe pas (fresh clone) : on sert les données
-//   statiques de src/data pour que le site reste complet.
-// - Si le fichier existe : c'est la source de vérité — tout ce que l'admin
-//   enregistre apparaît sur le site public.
+// - Store Supabase si configuré, sinon fichier data/portfolio.json.
+// - Si aucun store n'existe (fresh clone) : on sert les données statiques
+//   de src/data pour que le site reste complet.
 
-export function getPublicData(): PublicData {
-  if (!storeFileExists()) {
+export async function getPublicData(): Promise<PublicData> {
+  // Store purement statique si ni Supabase ni le fichier JSON n'existent.
+  if (!isSupabaseConfigured() && !storeFileExists()) {
     return {
       profile: profileFromStatic(),
       projects: [...staticProjects].sort((a, b) => a.order - b.order),
@@ -142,7 +143,30 @@ export function getPublicData(): PublicData {
     };
   }
 
-  const store = getStoreFresh();
+  const store = await getStore();
+
+  // Store fraîchement initialisé (tables Supabase ou JSON vides) : on sert
+  // les données statiques pour que le site ne soit jamais vide.
+  if (
+    store.projects.length === 0 &&
+    store.skills.length === 0 &&
+    store.processSteps.length === 0 &&
+    !storeFileExists()
+  ) {
+    return {
+      profile: profileFromStatic(),
+      projects: [...staticProjects].sort((a, b) => a.order - b.order),
+      skills: staticSkills.map((s) => ({ name: s.name, percentage: s.percentage })),
+      processSteps: staticProcessSteps.map(({ number, title, description, icon }) => ({
+        number,
+        title,
+        description,
+        icon,
+      })),
+      stats: staticProfile.stats.map(({ label, value, suffix }) => ({ label, value, suffix })),
+      settings: {},
+    };
+  }
 
   return {
     profile: mapProfile(store.profile),

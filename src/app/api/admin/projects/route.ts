@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest, getCookieFromRequest } from "@/lib/auth";
 import {
-  getStore,
   getStoreFresh,
+  saveStore,
   addActivity,
   generateId,
   type Project,
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    const store = getStore();
+    const store = await getStoreFresh();
     return NextResponse.json({ projects: store.projects });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const project: Project = {
       id: generateId(),
       title: data.title,
@@ -56,7 +56,8 @@ export async function POST(request: Request) {
     store.projects = [...store.projects, project].sort(
       (a, b) => a.order - b.order,
     );
-    addActivity(store, "project", `Projet "${project.title}" ajouté`);
+    await addActivity("project", `Projet "${project.title}" ajouté`);
+    await saveStore(store);
     return NextResponse.json({ project }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -79,7 +80,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.projects.findIndex((p) => p.id === id);
     if (idx === -1) {
       return NextResponse.json(
@@ -95,7 +96,8 @@ export async function PUT(request: Request) {
         ? data.technologies.map(String)
         : store.projects[idx].technologies,
     };
-    addActivity(store, "project", `Projet "${store.projects[idx].title}" modifié`);
+    await addActivity("project", `Projet "${store.projects[idx].title}" modifié`);
+    await saveStore(store);
     return NextResponse.json({
       project: store.projects[idx],
     });
@@ -119,7 +121,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.projects.findIndex((p) => p.id === id);
     if (idx === -1) {
       return NextResponse.json(
@@ -129,7 +131,8 @@ export async function DELETE(request: Request) {
     }
     const title = store.projects[idx].title;
     store.projects = store.projects.filter((p) => p.id !== id);
-    addActivity(store, "project", `Projet "${title}" supprimé`);
+    await addActivity("project", `Projet "${title}" supprimé`);
+    await saveStore(store);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });

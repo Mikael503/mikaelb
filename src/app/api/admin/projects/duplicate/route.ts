@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
-import { getStoreFresh, addActivity, generateId, type Project } from "@/lib/data-store";
+import {
+  getStoreFresh,
+  saveStore,
+  addActivity,
+  generateId,
+} from "@/lib/data-store";
 
 export async function POST(request: Request) {
   try {
@@ -17,8 +22,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
-    const src = store.projects.find((p: Project) => p.id === id);
+    const store = await getStoreFresh();
+    const src = store.projects.find((p) => p.id === id);
     if (!src) {
       return NextResponse.json(
         { error: "Projet introuvable." },
@@ -26,7 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const duplicate: typeof src = {
+    const duplicate = {
       ...src,
       id: generateId(),
       title: `${src.title} (copie)`,
@@ -37,7 +42,8 @@ export async function POST(request: Request) {
     store.projects = [...store.projects, duplicate].sort(
       (a, b) => a.order - b.order,
     );
-    addActivity(store, "project", `Projet "${duplicate.title}" dupliqué`);
+    await addActivity("project", `Projet "${duplicate.title}" dupliqué`);
+    await saveStore(store);
     return NextResponse.json({ project: duplicate }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });

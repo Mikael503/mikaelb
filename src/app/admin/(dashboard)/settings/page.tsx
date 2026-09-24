@@ -7,7 +7,7 @@ export default async function SettingsPage() {
   const session = await getSessionFromNextCookies();
   if (!session) redirect("/admin/login");
 
-  const store = getStoreFresh();
+  const store = await getStoreFresh();
   const { settings = {} } = store;
 
   return (

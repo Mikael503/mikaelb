@@ -7,7 +7,7 @@ export default async function ProjectsPage() {
   const session = await getSessionFromNextCookies();
   if (!session) redirect("/admin/login");
 
-  const store = getStoreFresh();
+  const store = await getStoreFresh();
   const { projects = [] } = store;
 
   return (

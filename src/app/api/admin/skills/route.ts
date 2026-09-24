@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
-import { getStoreFresh, addActivity, generateId, type Skill } from "@/lib/data-store";
+import {
+  getStoreFresh,
+  saveStore,
+  addActivity,
+  generateId,
+  type Skill,
+} from "@/lib/data-store";
 
 export async function GET(request: Request) {
   try {
@@ -8,7 +14,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     return NextResponse.json({ skills: store.skills });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -31,14 +37,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const skill: Skill = {
       id: generateId(),
       name: data.name.trim(),
       percentage: Math.min(100, Math.max(0, data.percentage ?? 50)),
     };
     store.skills = [...store.skills, skill].sort((a, b) => a.percentage - b.percentage);
-    addActivity(store, "skill", `Compétence "${skill.name}" ajoutée`);
+    await addActivity("skill", `Compétence "${skill.name}" ajoutée`);
+    await saveStore(store);
     return NextResponse.json({ skill }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -61,7 +68,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.skills.findIndex((s) => s.id === id);
     if (idx === -1) {
       return NextResponse.json({ error: "Compétence introuvable." }, { status: 404 });
@@ -73,7 +80,8 @@ export async function PUT(request: Request) {
         ? Math.min(100, Math.max(0, data.percentage))
         : store.skills[idx].percentage,
     };
-    addActivity(store, "skill", `Compétence "${store.skills[idx].name}" modifiée`);
+    await addActivity("skill", `Compétence "${store.skills[idx].name}" modifiée`);
+    await saveStore(store);
     return NextResponse.json({ skill: store.skills[idx] });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -92,14 +100,15 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID requis." }, { status: 400 });
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.skills.findIndex((s) => s.id === id);
     if (idx === -1) {
       return NextResponse.json({ error: "Compétence introuvable." }, { status: 404 });
     }
     const name = store.skills[idx].name;
     store.skills = store.skills.filter((s) => s.id !== id);
-    addActivity(store, "skill", `Compétence "${name}" supprimée`);
+    await addActivity("skill", `Compétence "${name}" supprimée`);
+    await saveStore(store);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });

@@ -20,8 +20,8 @@ import type {
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const { profile, projects, skills, processSteps, stats, settings } = getPublicData();
+export default async function Home() {
+  const { profile, projects, skills, processSteps, stats, settings } = await getPublicData();
 
   const showProjects = settings.showProjects !== false;
   const showStats = settings.showStats !== false;

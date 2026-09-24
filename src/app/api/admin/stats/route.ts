@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
-import { getStoreFresh, addActivity, generateId, type Stat } from "@/lib/data-store";
+import {
+  getStoreFresh,
+  saveStore,
+  addActivity,
+  generateId,
+  type Stat,
+} from "@/lib/data-store";
 
 export async function GET(request: Request) {
   try {
@@ -8,7 +14,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     return NextResponse.json({ stats: store.stats });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -31,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const stat: Stat = {
       id: generateId(),
       label: data.label.trim(),
@@ -39,7 +45,8 @@ export async function POST(request: Request) {
       suffix: data.suffix ?? "",
     };
     store.stats = [...store.stats, stat];
-    addActivity(store, "stat", `Statistique "${stat.label}" ajoutée`);
+    await addActivity("stat", `Statistique "${stat.label}" ajoutée`);
+    await saveStore(store);
     return NextResponse.json({ stat }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -59,7 +66,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "ID requis." }, { status: 400 });
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.stats.findIndex((s) => s.id === id);
     if (idx === -1) {
       return NextResponse.json({ error: "Statistique introuvable." }, { status: 404 });
@@ -70,7 +77,8 @@ export async function PUT(request: Request) {
       value: data.value != null ? data.value : store.stats[idx].value,
       suffix: data.suffix ?? store.stats[idx].suffix,
     };
-    addActivity(store, "stat", `Statistique "${store.stats[idx].label}" modifiée`);
+    await addActivity("stat", `Statistique "${store.stats[idx].label}" modifiée`);
+    await saveStore(store);
     return NextResponse.json({ stat: store.stats[idx] });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -89,14 +97,15 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID requis." }, { status: 400 });
     }
 
-    const store = getStoreFresh();
+    const store = await getStoreFresh();
     const idx = store.stats.findIndex((s) => s.id === id);
     if (idx === -1) {
       return NextResponse.json({ error: "Statistique introuvable." }, { status: 404 });
     }
     const label = store.stats[idx].label;
     store.stats = store.stats.filter((s) => s.id !== id);
-    addActivity(store, "stat", `Statistique "${label}" supprimée`);
+    await addActivity("stat", `Statistique "${label}" supprimée`);
+    await saveStore(store);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
