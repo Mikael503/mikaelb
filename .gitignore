@@ -30,10 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Données persistées de l'Admin (JSON)
-data/portfolio.json
-# Sessions admin (tokens sensibles — jamais versionnés)
-data/sessions.json
+# Données persistées de l'Admin (JSON) + fichiers locaux (logs, notes, secrets)
+data/
 
 # Fichiers uploadés via l'Admin
 public/images/profile.jpg
