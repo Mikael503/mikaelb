@@ -4,7 +4,7 @@ import { Users, FolderCheck, Calendar, Heart } from "lucide-react";
 import type { PublicStat } from "@/lib/public-data";
 import { StatCard } from "@/components/StatCard";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
-import { FoldText } from "@/components/react-bits/FoldText";
+import { TrueFocus } from "@/components/react-bits/TrueFocus";
 
 const statIcons = [
   <Users className="h-6 w-6" key="users" />,
@@ -19,14 +19,14 @@ interface StatsProps {
 
 export function Stats({ stats }: StatsProps) {
   return (
-    <section id="stats" className="py-20 md:py-28">
+    <section id="stats" className="py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <AnimatedContent distance={50} direction="bottom" duration={0.8}>
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold md:text-4xl">
-              <FoldText text="En " className="text-foreground" />
+              <TrueFocus text="En" className="text-foreground" />{" "}
               <span className="text-accent">
-                <FoldText text="Chiffres" delay={0.1} />
+                <TrueFocus text="Chiffres" />
               </span>
             </h2>
             <p className="mt-3 text-text-secondary">

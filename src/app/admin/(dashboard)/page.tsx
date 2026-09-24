@@ -33,7 +33,7 @@ export default async function AdminPage() {
   const skillCount = skills.length;
   const messageCount = messages.length;
   const unreadCount = messages.filter((m) => m.status === "new").length;
-  const clientCount = Array.isArray(profile.clients) ? profile.clients.length : Number(profile.clients ?? 0);
+  const clientCount = profile.stats?.clients ?? 0;
   const satisfaction = Number(
     stats.find((s) => s.label.toLowerCase().includes("satisfaction"))?.value ?? 0,
   );

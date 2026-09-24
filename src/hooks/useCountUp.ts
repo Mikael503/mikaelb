@@ -9,6 +9,7 @@ export function useCountUp(end: number, duration = 2000): {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement | null>(null);
   const hasAnimated = useRef(false);
+  const rafId = useRef<number>(0);
 
   const animate = useCallback(() => {
     if (hasAnimated.current) return;
@@ -19,14 +20,14 @@ export function useCountUp(end: number, duration = 2000): {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * end));
+      setCount(Math.round(eased * end));
       if (progress < 1) {
-        requestAnimationFrame(step);
+        rafId.current = requestAnimationFrame(step);
       } else {
         setCount(end);
       }
     };
-    requestAnimationFrame(step);
+    rafId.current = requestAnimationFrame(step);
   }, [end, duration]);
 
   useEffect(() => {
@@ -44,7 +45,10 @@ export function useCountUp(end: number, duration = 2000): {
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
   }, [animate]);
 
   return { count, ref };

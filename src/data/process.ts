@@ -1,12 +1,8 @@
-export interface ProcessStep {
-  number: string;
-  title: string;
-  description: string;
-  icon: string;
-}
+import { type ProcessStep } from "@/lib/data-store";
 
 export const processSteps: ProcessStep[] = [
   {
+    id: "ps1",
     number: "01",
     title: "Découvrir",
     description:
@@ -14,6 +10,7 @@ export const processSteps: ProcessStep[] = [
     icon: "Search",
   },
   {
+    id: "ps2",
     number: "02",
     title: "Planifier",
     description:
@@ -21,6 +18,7 @@ export const processSteps: ProcessStep[] = [
     icon: "Map",
   },
   {
+    id: "ps3",
     number: "03",
     title: "Concevoir",
     description:
@@ -28,6 +26,7 @@ export const processSteps: ProcessStep[] = [
     icon: "Palette",
   },
   {
+    id: "ps4",
     number: "04",
     title: "Développer",
     description:
@@ -35,6 +34,7 @@ export const processSteps: ProcessStep[] = [
     icon: "Code2",
   },
   {
+    id: "ps5",
     number: "05",
     title: "Tester",
     description:
@@ -42,6 +42,7 @@ export const processSteps: ProcessStep[] = [
     icon: "Bug",
   },
   {
+    id: "ps6",
     number: "06",
     title: "Déployer",
     description:

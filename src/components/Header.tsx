@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
-import { MobileMenu } from "./MobileMenu";
-import { Menu, X, Download } from "lucide-react";
+import { Logo } from "./Logo";
+import { StaggeredMenu } from "./react-bits/StaggeredMenu";
+import { Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PublicProfile } from "@/lib/public-data";
 
@@ -24,7 +25,6 @@ const sectionIds = navLinks.map((l) => l.href.replace("#", ""));
 
 export function Header({ profile }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const activeId = useScrollSpy(sectionIds);
 
   useEffect(() => {
@@ -34,7 +34,6 @@ export function Header({ profile }: HeaderProps) {
   }, []);
 
   const handleNavClick = (href: string) => {
-    setMenuOpen(false);
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
@@ -43,26 +42,24 @@ export function Header({ profile }: HeaderProps) {
 
   return (
     <>
+      {/* Desktop header — visible on lg+ */}
       <header
         className={cn(
-          "fixed top-0 left-0 z-50 w-full transition-all duration-500",
+          "fixed top-0 left-0 z-50 hidden w-full transition-all duration-500 lg:block",
           scrolled
             ? "bg-background/80 backdrop-blur-xl border-b border-border-subtle"
             : "bg-transparent"
         )}
       >
         <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-          {/* Logo — simple text like reference */}
-          <a
-            href="#home"
-            onClick={(e) => {
+          {/* Logo — monogramme MB éditorial */}
+          <Logo
+            size="md"
+            onHomeClick={(e) => {
               e.preventDefault();
               handleNavClick("#home");
             }}
-            className="text-lg font-bold tracking-tight text-foreground"
-          >
-            Mikael<span className="font-normal text-text-secondary">Bohime</span>
-          </a>
+          />
 
           {/* Desktop navigation — centered, visible on lg+ */}
           <nav
@@ -100,7 +97,7 @@ export function Header({ profile }: HeaderProps) {
             })}
           </nav>
 
-          {/* Download CV — right side, desktop only (mobile has it in the menu) */}
+          {/* Download CV — right side, desktop only */}
           <a
             href={profile.cvUrl}
             download
@@ -111,30 +108,30 @@ export function Header({ profile }: HeaderProps) {
             <Download className="h-4 w-4" />
             CV
           </a>
-
-          {/* Hamburger — right side, mobile only */}
-          <button
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-white/5 lg:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          >
-            {menuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
         </div>
       </header>
 
-      <MobileMenu
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        links={navLinks}
-        activeId={activeId}
-        onNavClick={handleNavClick}
-        profile={profile}
-      />
+      {/* Mobile menu — StaggeredMenu, visible below lg */}
+      <div className="lg:hidden">
+        <StaggeredMenu
+          position="right"
+          items={navLinks.map((l) => ({
+            label: l.label,
+            ariaLabel: `Aller à la section ${l.label}`,
+            link: l.href,
+          }))}
+          displaySocials={false}
+          displayItemNumbering
+          menuButtonColor="#f0f0f0"
+          openMenuButtonColor="#7cb68a"
+          changeMenuColorOnOpen
+          colors={["#1a1a1a", "#7cb68a"]}
+          accentColor="#7cb68a"
+          isFixed
+          cvUrl={profile.cvUrl}
+          onItemClick={handleNavClick}
+        />
+      </div>
     </>
   );
 }

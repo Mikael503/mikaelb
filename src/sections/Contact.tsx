@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import {
   Mail,
-  Phone,
   MapPin,
   Clock,
   Send,
@@ -15,7 +14,10 @@ import type { PublicProfile } from "@/lib/public-data";
 import { GlassCard } from "@/components/GlassCard";
 import { BorderGlow } from "@/components/BorderGlow";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
-import { SplitText } from "@/components/react-bits/SplitText";
+import { TrueFocus } from "@/components/react-bits/TrueFocus";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { Magnet } from "@/components/react-bits/Magnet";
+import { ClickSpark } from "@/components/react-bits/ClickSpark";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -36,10 +38,10 @@ export function Contact({ profile }: { profile: PublicProfile }) {
       href: `mailto:${profile.email}`,
     },
     {
-      icon: <Phone className="h-5 w-5" />,
-      label: "Téléphone",
-      value: profile.phone,
-      href: `tel:${profile.phone}`,
+      icon: <WhatsAppIcon className="h-5 w-5" />,
+      label: "WhatsApp",
+      value: profile.phone || "+229 01 92 73 52 05",
+      href: `https://wa.me/${(profile.whatsapp || "2290192735205").replace(/\D/g, "")}`,
     },
     {
       icon: <MapPin className="h-5 w-5" />,
@@ -112,15 +114,14 @@ export function Contact({ profile }: { profile: PublicProfile }) {
   };
 
   return (
-    <section id="contact" className="py-20 md:py-28">
+    <section id="contact" className="py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <AnimatedContent distance={50} direction="bottom" duration={0.8}>
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold md:text-4xl">
-              <SplitText text="Construisons quelque chose de " className="text-foreground" />
+              <TrueFocus text="Construisons quelque chose de" className="text-foreground" />{" "}
               <span className="text-accent">
-                {/* delay = longueur du texte précédent (30 chars) × 0.03s pour enchaîner en continu */}
-                <SplitText text="grand" delay={0.9} />
+                <TrueFocus text="grand" />
               </span>
             </h2>
             <p className="mt-3 text-text-secondary">
@@ -139,19 +140,19 @@ export function Contact({ profile }: { profile: PublicProfile }) {
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-muted text-accent">
                         {item.icon}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="text-xs text-text-dim">
                           {item.label}
                         </div>
                         {item.href ? (
                           <a
                             href={item.href}
-                            className="text-sm font-medium text-foreground transition-colors hover:text-accent"
+                            className="break-all text-sm font-medium text-foreground transition-colors hover:text-accent"
                           >
                             {item.value}
                           </a>
                         ) : (
-                          <div className="text-sm font-medium text-foreground">
+                          <div className="break-words text-sm font-medium text-foreground">
                             {item.value}
                           </div>
                         )}
@@ -268,23 +269,27 @@ export function Contact({ profile }: { profile: PublicProfile }) {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={formState === "loading"}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-bright px-6 py-3 text-sm font-semibold text-[#0a0a0a] transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    {formState === "loading" ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Envoi...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" />
-                        Envoyer le message
-                      </>
-                    )}
-                  </button>
+                  <Magnet strength={0.2} radius={120} style={{ display: "block", width: "100%" }}>
+                    <ClickSpark style={{ display: "block", width: "100%" }}>
+                      <button
+                        type="submit"
+                        disabled={formState === "loading"}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent-bright px-6 py-3 text-sm font-semibold text-[#0a0a0a] transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {formState === "loading" ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Envoi...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4" />
+                            Envoyer le message
+                          </>
+                        )}
+                      </button>
+                    </ClickSpark>
+                  </Magnet>
                 </form>
               </GlassCard>
               </BorderGlow>

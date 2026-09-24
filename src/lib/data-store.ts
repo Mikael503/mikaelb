@@ -70,6 +70,7 @@ export interface Profile {
   location: string;
   email: string;
   phone: string;
+  whatsapp?: string;
   availability: string;
   spotsLeft: number;
   cvUrl: string;
@@ -85,8 +86,6 @@ export interface Profile {
     experience: number;
     satisfaction: number;
   };
-  floatingStats?: Array<{ label: string; value: string; icon?: string }>;
-  clients?: string[];
 }
 
 export interface Settings {
@@ -126,35 +125,31 @@ export function fakeProfile(): Profile {
     name: "Mikael Bohime",
     firstName: "Mikael",
     initials: "MB",
-    role: "Développeur Full-Stack",
-    tagline: "Développeur Full-Stack — Solutions digitales sur mesure",
-    bio: "Développeur Full-Stack passionné par la création de solutions digitales modernes, performantes et centrées sur l'utilisateur.",
-    longBio: "Je suis développeur full-stack avec plusieurs années d'expérience dans la conception et le développement d'applications web modernes. Je combine rigueur technique et sens du design pour livrer des produits qui fonctionnent bien et qui ont une identité visuelle forte.",
-    photo: "https://picsum.photos/seed/mikael/400/400",
-    location: "France",
-    email: "hello@mikaelbohime.dev",
-    phone: "+33 6 00 00 00 00",
-    availability: "Disponible",
-    spotsLeft: 2,
+    role: "Développeur Logiciel",
+    tagline: "Des solutions digitales premium qui génèrent des résultats.",
+    bio: "Salut, je suis Mikael... Fort d'une année d'expérience, je crée des interfaces haut de gamme qui aident les entreprises à se démarquer, à gagner en compétitivité et à atteindre leurs objectifs financiers.",
+    longBio:
+      "Je suis un développeur full-stack spécialisé dans la création d'expériences digitales modernes, responsives et centrées sur l'utilisateur. Passionné par le code propre et les solutions élégantes, je transforme des problèmes complexes en applications simples, belles et intuitives. Du concept au déploiement, je travaille en étroite collaboration avec mes clients pour donner vie à leurs visions.",
+    photo: "/images/profile.jpg",
+    location: "Cotonou, Bénin",
+    email: "mikaelbohime8@gmail.com",
+    phone: "+229 01 92 73 52 05",
+    whatsapp: "+2290192735205",
+    availability: "Disponible pour de nouveaux projets",
+    spotsLeft: 3,
     cvUrl: "/cv/mikael-bohime-cv.pdf",
     socialLinks: {
       github: "https://github.com/mikaelbohime",
       linkedin: "https://linkedin.com/in/mikaelbohime",
       twitter: "https://twitter.com/mikaelbohime",
-      email: "mailto:hello@mikaelbohime.dev",
+      email: "mailto:mikaelbohime8@gmail.com",
     },
     stats: {
-      clients: 20,
-      projects: 20,
-      experience: 4,
-      satisfaction: 99,
+      clients: 5,
+      projects: 5,
+      experience: 1,
+      satisfaction: 57,
     },
-    floatingStats: [
-      { label: "4+ ans d'expérience", value: "4+", icon: "Zap" },
-      { label: "20+ projets réalisés", value: "20+", icon: "FolderOpen" },
-      { label: "99% de satisfaction", value: "99%", icon: "Star" },
-    ],
-    clients: ["Entreprise A", "Startup B", "Agence C"],
   };
 }
 
@@ -228,14 +223,14 @@ export async function seedFromExistingDataIfNeeded(): Promise<void> {
 
   // Seed depuis les fichiers data existants (si présents)
   const profile = fakeProfile();
-  const projects = loadProjectsFromDataFile();
-  const skills = loadSkillsFromDataFile();
-  const processSteps = loadProcessFromDataFile();
+  const projects: Project[] = [];
+  const skills: Skill[] = [];
+  const processSteps: ProcessStep[] = [];
   const stats = [
-    { id: "s1", label: "Clients satisfaits", value: 20, suffix: "+" },
-    { id: "s2", label: "Projets réalisés", value: 20, suffix: "+" },
-    { id: "s3", label: "Années d'expérience", value: 4, suffix: "+" },
-    { id: "s4", label: "Taux de satisfaction", value: 99, suffix: "%" },
+    { id: "s1", label: "Clients satisfaits", value: 5, suffix: "+" },
+    { id: "s2", label: "Projets réalisés", value: 5, suffix: "" },
+    { id: "s3", label: "Années d'expérience", value: 1, suffix: "" },
+    { id: "s4", label: "Taux de satisfaction", value: 57, suffix: "%" },
   ];
 
   const store: Store = {
@@ -250,48 +245,6 @@ export async function seedFromExistingDataIfNeeded(): Promise<void> {
   };
 
   writeStoreToFile(store);
-}
-
-function loadProjectsFromDataFile(): Project[] {
-  try {
-    // On lit directement le fichier via readFileSync pour éviter require
-    const filePath = join(process.cwd(), "src", "data", "projects.ts");
-    if (!existsSync(filePath)) {
-      return [];
-    }
-    // On pourrait parser le TSX, mais c'est complexe. On utilise un fallback
-    // simple : si le fichier n'est pas JSON, on renvoie un tableau vide.
-    // Dans ce projet, les données sont typescript, donc on doit les charger
-    // d'une façon ou d'une autre. On va utiliser un script de seed dédié
-    // qui importe les fichiers via tsx et les injecte dans le JSON.
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function loadSkillsFromDataFile(): Skill[] {
-  try {
-    const filePath = join(process.cwd(), "src", "data", "skills.ts");
-    if (!existsSync(filePath)) {
-      return [];
-    }
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function loadProcessFromDataFile(): ProcessStep[] {
-  try {
-    const filePath = join(process.cwd(), "src", "data", "process.ts");
-    if (!existsSync(filePath)) {
-      return [];
-    }
-    return [];
-  } catch {
-    return [];
-  }
 }
 
 function readStoreFromFile(): Store {
@@ -311,10 +264,10 @@ function readStoreFromFile(): Store {
     skills: [],
     processSteps: [],
     stats: [
-      { id: "s1", label: "Clients satisfaits", value: 20, suffix: "+" },
-      { id: "s2", label: "Projets réalisés", value: 20, suffix: "+" },
-      { id: "s3", label: "Années d'expérience", value: 4, suffix: "+" },
-      { id: "s4", label: "Taux de satisfaction", value: 99, suffix: "%" },
+      { id: "s1", label: "Clients satisfaits", value: 5, suffix: "+" },
+      { id: "s2", label: "Projets réalisés", value: 5, suffix: "" },
+      { id: "s3", label: "Années d'expérience", value: 1, suffix: "" },
+      { id: "s4", label: "Taux de satisfaction", value: 57, suffix: "%" },
     ],
     messages: [],
     settings: {},

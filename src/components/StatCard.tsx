@@ -1,6 +1,7 @@
 "use client";
 
 import { useCountUp } from "@/hooks/useCountUp";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
 interface StatCardProps {
   label: string;
@@ -13,9 +14,9 @@ export function StatCard({ label, value, suffix = "", icon }: StatCardProps) {
   const { count, ref } = useCountUp(value);
 
   return (
-    <div
+    <SpotlightCard
       ref={ref}
-      className="glass rounded-2xl p-6 text-center transition-all duration-300 hover:border-white/12"
+      className="glass rounded-2xl p-4 text-center transition-all duration-300 hover:border-white/12 sm:p-6"
     >
       {icon && (
         <div className="mb-3 flex justify-center text-accent">{icon}</div>
@@ -25,6 +26,6 @@ export function StatCard({ label, value, suffix = "", icon }: StatCardProps) {
         {suffix}
       </div>
       <div className="mt-1 text-sm text-text-secondary">{label}</div>
-    </div>
+    </SpotlightCard>
   );
 }

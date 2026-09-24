@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   GitBranch,
   Home,
@@ -57,6 +57,7 @@ export default function AdminLayoutClient({
   data,
 }: AdminLayoutClientProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState<{ id: string; message: string; type?: "success" | "error" } | null>(null);
 
@@ -102,7 +103,10 @@ export default function AdminLayoutClient({
           <nav className="admin-sidebar-drawer-body admin-sidebar">
             {NAV.map((item) => {
               const Icon = item.icon;
-              const active = false; // le client ne connaît pas pathname ici (côté serveur on ne peut pas le passer facilement)
+              const active =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
@@ -192,11 +196,15 @@ export default function AdminLayoutClient({
               </div>
               {NAV.map((item) => {
                 const Icon = item.icon;
+                const active =
+                  item.href === "/admin"
+                    ? pathname === "/admin"
+                    : pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="admin-sidebar-link"
+                    className={`admin-sidebar-link ${active ? "active" : ""}`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span>{item.label}</span>
@@ -293,11 +301,15 @@ export default function AdminLayoutClient({
           <nav className="admin-sidebar-drawer-body admin-sidebar">
             {NAV.map((item) => {
               const Icon = item.icon;
+              const active =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="admin-sidebar-link"
+                  className={`admin-sidebar-link ${active ? "active" : ""}`}
                   onClick={() => setDrawerOpen(false)}
                 >
                   <Icon className="h-4 w-4 shrink-0" />

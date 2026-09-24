@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { PublicProcessStep } from "@/lib/public-data";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
-import { SplitText } from "@/components/react-bits/SplitText";
+import { TrueFocus } from "@/components/react-bits/TrueFocus";
 import { TiltedCard } from "@/components/react-bits/TiltedCard";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -24,15 +24,14 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function Process({ steps: processSteps }: { steps: PublicProcessStep[] }) {
   return (
-    <section id="process" className="py-20 md:py-28">
+    <section id="process" className="py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <AnimatedContent distance={50} direction="bottom" duration={0.8}>
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold md:text-4xl">
-              <SplitText text="Mon " className="text-foreground" />
+              <TrueFocus text="Mon" className="text-foreground" />{" "}
               <span className="text-accent">
-                {/* delay = longueur du texte précédent (4 chars) × 0.03s pour enchaîner en continu */}
-                <SplitText text="Processus" delay={0.12} />
+                <TrueFocus text="Processus" />
               </span>
             </h2>
             <p className="mt-3 text-text-secondary">
@@ -41,7 +40,7 @@ export function Process({ steps: processSteps }: { steps: PublicProcessStep[] })
           </div>
 
           {/* Desktop: Horizontal timeline */}
-          <div className="relative hidden md:block">
+          <div className="relative hidden lg:block">
             {/* Connecting line behind cards (visible in the gaps) */}
             <div className="absolute inset-x-0 top-10 h-px bg-gradient-to-r from-transparent via-border-glow to-transparent" />
 
@@ -84,7 +83,7 @@ export function Process({ steps: processSteps }: { steps: PublicProcessStep[] })
           </div>
 
           {/* Mobile: Vertical timeline */}
-          <div className="relative md:hidden">
+          <div className="relative lg:hidden">
             <div className="absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-border-glow via-border-glow to-transparent" />
 
             <div className="space-y-8">

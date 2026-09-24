@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from "node:crypto";
 import { asGetter, asMutator, type CookieGetter, type CookieMutator } from "./cookie-utils";
 import { readFileSync, writeFileSync } from "node:fs";
 
@@ -20,7 +20,7 @@ export const adminEmail = process.env.ADMIN_EMAIL ?? "admin@mikaelbohime.dev";
 // ---------------------------------------------------------------------------
 
 function hashPasswordRaw(password: string, salt: string): string {
-  const derived = require("node:crypto").pbkdf2Sync(password, salt, ITERATIONS, HASH_LENGTH, DIGEST);
+  const derived = pbkdf2Sync(password, salt, ITERATIONS, HASH_LENGTH, DIGEST);
   return derived.toString("hex");
 }
 
@@ -170,23 +170,6 @@ export async function destroySession(requestLike?: {
     }
   }
   store.delete(cookieName);
-}
-
-// ---------------------------------------------------------------------------
-// Vérification du cookie (valide si structure <id>.<sig>)
-// ---------------------------------------------------------------------------
-
-function verifyCookieToken(token: string): string | null {
-  const parts = token.split(".");
-  if (parts.length !== 2) return null;
-  const [id, sig] = parts;
-  if (!id || !sig) return null;
-  const expected = createHmac("sha256", cookieSecret).update(id).digest("hex").slice(0, 16);
-  const sigPadded = sig.padEnd(16, "0").slice(0, 16);
-  if (!timingSafeEqual(Buffer.from(sigPadded), Buffer.from(expected))) {
-    return null;
-  }
-  return id;
 }
 
 export function requireAdmin(requestLike?: {

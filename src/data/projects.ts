@@ -1,57 +1,45 @@
-export interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  description: string;
-  image: string;
-  technologies: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  featured: boolean;
-  order: number;
-}
+import { type Project } from "@/lib/data-store";
 
 export const projects: Project[] = [
   {
     id: "1",
-    title: "FinTrack Dashboard",
-    slug: "fintrack-dashboard",
-    category: "Application Web",
+    title: "Nova Studio",
+    slug: "nova-studio",
+    category: "Site Vitrine",
     description:
-      "Un tableau de bord complet de suivi financier avec analyses en temps réel, gestion de portefeuille et rapports personnalisables pour les startups fintech.",
-    image: "/images/projects/fintrack.jpg",
-    technologies: ["React", "TypeScript", "Node.js", "PostgreSQL", "Chart.js"],
-    liveUrl: "https://fintrack-demo.vercel.app",
-    githubUrl: "https://github.com/mikaelbohime/fintrack-dashboard",
+      "Site one-page immersif pour un studio de design fictif : hero WebGL, marquee défilant, cartes 3D interactives, formulaire de contact incurvé et curseur animé global. Thème sombre violet/cyan, navigation sticky à effet Dock.",
+    image: "/images/projects/nova-studio.jpg",
+    technologies: ["React 19", "TypeScript", "Vite", "Tailwind CSS", "Motion", "OGL", "GSAP"],
+    liveUrl: "",
+    githubUrl: "https://github.com/mikaelbohime/nova-studio",
     featured: true,
     order: 1,
   },
   {
     id: "2",
-    title: "ShopVista E-commerce",
-    slug: "shopvista-ecommerce",
-    category: "E-commerce",
+    title: "BizFlow",
+    slug: "bizflow",
+    category: "Application SaaS",
     description:
-      "Une plateforme e-commerce moderne avec gestion de produits, paiements sécurisés, suivi de commandes et un panneau d'administration intuitif.",
-    image: "/images/projects/shopvista.jpg",
-    technologies: ["Next.js", "Stripe", "MongoDB", "Tailwind CSS", "Vercel"],
-    liveUrl: "https://shopvista-demo.vercel.app",
-    githubUrl: "https://github.com/mikaelbohime/shopvista",
+      "Plateforme « dark-first » de gestion commerciale pour petites entreprises : dashboard KPI temps réel, CRUD clients/produits/ventes, mode encaissement type POS et boutique publique (/store/[slug]) où les clients commandent sans compte — chaque commande se convertit en vente d'un clic.",
+    image: "/images/projects/bizflow.jpg",
+    technologies: ["Next.js 13", "TypeScript", "Tailwind CSS", "shadcn/ui", "Recharts", "Supabase"],
+    liveUrl: "",
+    githubUrl: "https://github.com/mikaelbohime/bizflow",
     featured: true,
     order: 2,
   },
   {
     id: "3",
-    title: "Taskify AI",
-    slug: "taskify-ai",
-    category: "Application SaaS",
+    title: "BLOOP",
+    slug: "bloop",
+    category: "Jeu Mobile 2D",
     description:
-      "Un outil de gestion de projet propulsé par l'IA avec priorisation intelligente des tâches, collaboration d'équipe et optimisation automatisée des flux de travail.",
-    image: "/images/projects/taskify.jpg",
-    technologies: ["Python", "Django", "React", "OpenAI API", "Redis"],
-    liveUrl: "https://taskify-demo.vercel.app",
-    githubUrl: "https://github.com/mikaelbohime/taskify-ai",
+      "Jeu mobile 2D type Suika Game sous Unity 6 (URP 2D) : le joueur fait tomber des boules dans un bac et fusionne celles de même niveau (L1 → L8) jusqu'à déborder. Portrait strict 1080×1922, système jelly visuel (squash & stretch, wobble, pop de fusion) isolé de la physique, validé par 20 tests automatisés.",
+    image: "/images/projects/bloop.jpg",
+    technologies: ["Unity 6", "URP 2D", "C#", "Test Framework"],
+    liveUrl: "",
+    githubUrl: "https://github.com/mikaelbohime/bloop",
     featured: true,
     order: 3,
   },

@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { Plus, Edit, Trash, Check, X, BarChart3, TrendingUp } from "lucide-react";
-import { MB } from "@/components/ui/icons";
 
 interface Stat {
   id: string;
@@ -114,51 +113,7 @@ export default function StatsClient({ initialStats }: { initialStats: Stat[] }) 
   );
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Sidebar */}
-      <aside className="admin-sidebar flex h-[calc(100vh-57px)] shrink-0 flex-col border-r border-[var(--admin-border)] bg-black/40 p-4">
-        <div className="mb-6 flex items-center gap-2">
-          <MB className="h-5 w-5 text-green-500" />
-          <span className="text-white text-sm font-semibold">Mikael Bohime</span>
-        </div>
-        <nav className="flex flex-col gap-1">
-          {[
-            { href: "/admin", label: "Tableau de bord", icon: "🏠" },
-            { href: "/admin/projects", label: "Projets", icon: "📁" },
-            { href: "/admin/profile", label: "Profil", icon: "👤" },
-            { href: "/admin/skills", label: "Compétences", icon: "⚡" },
-            { href: "/admin/process", label: "Processus", icon: "⚙" },
-            { href: "/admin/stats", label: "Statistiques", icon: "📊", active: true },
-            { href: "/admin/messages", label: "Messages", icon: "✉" },
-            { href: "/admin/settings", label: "Paramètres", icon: "⚙" },
-          ].map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`admin-sidebar-link flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
-                item.href === "/admin/stats"
-                  ? "bg-white/5 text-white font-medium"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="mt-auto">
-          <a
-            href="/admin/login?logout=1"
-            className="admin-sidebar-link flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/50 transition hover:bg-white/5 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-            <span>Déconnexion</span>
-          </a>
-        </div>
-      </aside>
-
-      {/* Contenu */}
-      <main className="flex flex-1 flex-col px-6 py-8">
+    <>
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-white text-2xl font-semibold">Statistiques</h1>
@@ -244,7 +199,6 @@ export default function StatsClient({ initialStats }: { initialStats: Stat[] }) 
             </div>
           </div>
         )}
-      </main>
 
       {/* Modale */}
       {(editing || form.label !== "") && (
@@ -352,6 +306,6 @@ export default function StatsClient({ initialStats }: { initialStats: Stat[] }) 
           <span>{toast.message}</span>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -28,6 +28,7 @@ export interface PublicProfile {
   location: string;
   email: string;
   phone: string;
+  whatsapp?: string;
   availability: string;
   spotsLeft: string;
   cvUrl: string;
@@ -59,12 +60,15 @@ export interface PublicData {
 
 const t = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
 
+function formatSpotsLeft(value: unknown): string {
+  const spotsNum = Number(value);
+  return Number.isFinite(spotsNum) && spotsNum > 0
+    ? `Plus que ${spotsNum} place${spotsNum > 1 ? "s" : ""}`
+    : "";
+}
+
 function mapProfile(p: Profile): PublicProfile {
-  const spotsNum = Number(p.spotsLeft);
-  const spotsLeft =
-    Number.isFinite(spotsNum) && spotsNum > 0
-      ? `Plus que ${spotsNum} place${spotsNum > 1 ? "s" : ""}`
-      : staticProfile.spotsLeft;
+  const spotsLeft = formatSpotsLeft(p.spotsLeft);
 
   return {
     name: t(p.name) || staticProfile.name,
@@ -78,6 +82,7 @@ function mapProfile(p: Profile): PublicProfile {
     location: t(p.location) || staticProfile.location,
     email: t(p.email) || staticProfile.email,
     phone: t(p.phone) || staticProfile.phone,
+    whatsapp: t(p.whatsapp) || staticProfile.whatsapp,
     availability: t(p.availability) || staticProfile.availability,
     spotsLeft,
     cvUrl: t(p.cvUrl) || staticProfile.cvUrl,
@@ -103,8 +108,9 @@ function profileFromStatic(): PublicProfile {
     location: staticProfile.location,
     email: staticProfile.email,
     phone: staticProfile.phone,
+    whatsapp: staticProfile.whatsapp,
     availability: staticProfile.availability,
-    spotsLeft: staticProfile.spotsLeft,
+    spotsLeft: formatSpotsLeft(staticProfile.spotsLeft),
     cvUrl: staticProfile.cvUrl,
     socialLinks: { ...staticProfile.socialLinks },
   };

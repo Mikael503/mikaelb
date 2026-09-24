@@ -32,6 +32,8 @@ yarn-error.log*
 
 # Données persistées de l'Admin (JSON)
 data/portfolio.json
+# Sessions admin (tokens sensibles — jamais versionnés)
+data/sessions.json
 
 # Fichiers uploadés via l'Admin
 public/images/profile.jpg
