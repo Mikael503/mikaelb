@@ -79,35 +79,70 @@ export function writeSessionsFile(sessions: SessionsFile): void {
 // Opérations session
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Sessions SANS filesystem (stateless, compatible serverless/Netlify)
+// ---------------------------------------------------------------------------
+// Le token est autosuffisant : v1.<id>.<expiresMs>.<emailB64>.<signature>
+// où signature = HMAC-SHA256(secret, "v1.<id>.<expiresMs>.<emailB64>").
+// Aucune lecture/écriture disque → fonctionne sur filesystem éphémère.
+// La déconnexion supprime simplement le cookie (pas de révocation serveur,
+// la session expire d'elle-même au bout de 7 jours).
+
+const SESSION_TTL_MS = 7 * 24 * 3600 * 1000;
+const SIG_LENGTH = 32;
+
+function b64urlEncode(s: string): string {
+  return Buffer.from(s, "utf-8").toString("base64url");
+}
+
+function b64urlDecode(s: string): string {
+  return Buffer.from(s, "base64url").toString("utf-8");
+}
+
+function signSessionPayload(payload: string): string {
+  return createHmac("sha256", cookieSecret).update(payload).digest("hex").slice(0, SIG_LENGTH);
+}
+
+function signaturesEqual(a: string, b: string): boolean {
+  const normA = a.slice(0, SIG_LENGTH).padEnd(SIG_LENGTH, "0");
+  const normB = b.slice(0, SIG_LENGTH).padEnd(SIG_LENGTH, "0");
+  return timingSafeEqual(Buffer.from(normA), Buffer.from(normB));
+}
+
 async function getSessionFromCookie(getter: () => string | undefined): Promise<Session | null> {
   const token = getter();
   if (!token) return null;
 
-  // Le token est <id_complet>.<signature>
   const parts = token.split(".");
-  if (parts.length !== 2) return null;
-  const id = parts[0];
-  if (!id) return null;
+  if (parts.length !== 5 || parts[0] !== "v1") return null;
+  const [, id, expStr, emailB64, sig] = parts as [string, string, string, string, string];
+  if (!id || !expStr || !emailB64 || !sig) return null;
 
-  // Vérifier la signature
-  const sig = parts[1];
-  if (!sig) return null;
-  const expected = createHmac("sha256", cookieSecret).update(id).digest("hex").slice(0, 16);
-  const sigPadded = sig.padEnd(16, "0").slice(0, 16);
-  if (!timingSafeEqual(Buffer.from(sigPadded), Buffer.from(expected))) {
+  const payload = `v1.${id}.${expStr}.${emailB64}`;
+  if (!signaturesEqual(sig, signSessionPayload(payload))) {
     return null;
   }
 
-  const sessions = readSessionsFile();
-  const session = sessions[id];
-  if (!session) return null;
-  if (new Date(session.expires) < new Date()) {
-    const copy = { ...sessions };
-    delete copy[id];
-    writeSessionsFile(copy);
+  const expiresMs = Number(expStr);
+  if (!Number.isFinite(expiresMs) || expiresMs < Date.now()) {
     return null;
   }
-  return session;
+
+  let email: string;
+  try {
+    email = b64urlDecode(emailB64);
+  } catch {
+    return null;
+  }
+  if (!email) return null;
+
+  const expires = new Date(expiresMs).toISOString();
+  return {
+    id,
+    email,
+    created: new Date(expiresMs - SESSION_TTL_MS).toISOString(),
+    expires,
+  };
 }
 
 export async function getSession(requestLike?: {
@@ -134,19 +169,17 @@ export async function createSession(email: string): Promise<{
   session: Session;
   cookieValue: string;
 }> {
+  const id = randomBytes(24).toString("hex");
+  const expiresMs = Date.now() + SESSION_TTL_MS;
+  const payload = `v1.${id}.${expiresMs}.${b64urlEncode(email)}`;
+  const cookieValue = `${payload}.${signSessionPayload(payload)}`;
+
   const session: Session = {
-    id: randomBytes(24).toString("hex"),
+    id,
     email,
     created: new Date().toISOString(),
-    expires: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    expires: new Date(expiresMs).toISOString(),
   };
-  const sessions = readSessionsFile();
-  sessions[session.id] = session;
-  writeSessionsFile(sessions);
-
-  const sig = createHmac("sha256", cookieSecret).update(session.id).digest("hex").slice(0, 16);
-  const cookieValue = `${session.id}.${sig}`;
-
   return { session, cookieValue };
 }
 
@@ -158,16 +191,22 @@ export async function destroySession(requestLike?: {
     return c() as CookieMutator;
   });
   const store = asMutator(cookieStore());
-  const token = store.get(cookieName);
-  if (token) {
-    const sessions = readSessionsFile();
-    const parts = token.split(".");
-    const id = parts[0];
-    if (id && sessions[id]) {
-      const copy = { ...sessions };
-      delete copy[id];
-      writeSessionsFile(copy);
+  // Session stateless : la déconnexion = suppression du cookie.
+  // Nettoyage best-effort de l'ancien fichier de sessions (local uniquement).
+  try {
+    const token = store.get(cookieName);
+    if (token) {
+      const sessions = readSessionsFile();
+      const parts = token.split(".");
+      const id = parts[0];
+      if (id && sessions[id]) {
+        const copy = { ...sessions };
+        delete copy[id];
+        writeSessionsFile(copy);
+      }
     }
+  } catch {
+    // Filesystem indisponible (serverless) : rien à nettoyer.
   }
   store.delete(cookieName);
 }
