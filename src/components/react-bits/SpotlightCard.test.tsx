@@ -1,4 +1,5 @@
 import { describe, test, expect, afterEach } from "vitest";
+import { createRef } from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { SpotlightCard } from "./SpotlightCard";
 
@@ -32,14 +33,14 @@ describe("SpotlightCard", () => {
   });
 
   test("forwards the ref to the card element", () => {
-    let node: HTMLDivElement | null = null;
+    const ref = createRef<HTMLDivElement>();
     const { container } = render(
-      <SpotlightCard ref={(el: HTMLDivElement | null) => { node = el; }}>
+      <SpotlightCard ref={ref}>
         <p>Contenu carte</p>
       </SpotlightCard>
     );
 
-    expect(node).toBe(container.firstElementChild);
-    expect(node?.className).toContain("spotlight-card");
+    expect(ref.current).toBe(container.firstElementChild);
+    expect(ref.current?.className).toContain("spotlight-card");
   });
 });

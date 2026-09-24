@@ -3,11 +3,11 @@ import { render, screen, act, cleanup } from "@testing-library/react";
 import { ScrollReveal } from "./ScrollReveal";
 
 type Callback = (entries: { isIntersecting: boolean }[]) => void;
-let observerCallback: Callback | null = null;
+const observerCallbacks: Callback[] = [];
 
 class FakeIntersectionObserver {
   constructor(cb: Callback) {
-    observerCallback = cb;
+    observerCallbacks.push(cb);
   }
   observe() {}
   unobserve() {}
@@ -16,12 +16,12 @@ class FakeIntersectionObserver {
 
 function fireIntersecting(isIntersecting: boolean) {
   act(() => {
-    observerCallback?.([{ isIntersecting }]);
+    observerCallbacks.at(-1)?.([{ isIntersecting }]);
   });
 }
 
 beforeEach(() => {
-  observerCallback = null;
+  observerCallbacks.length = 0;
   vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
 });
 
