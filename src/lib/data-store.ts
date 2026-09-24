@@ -234,8 +234,19 @@ function readStoreFromFile(): Store {
 
 function writeStoreToFile(store: Store): void {
   const path = storagePath();
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, JSON.stringify(store, null, 2), "utf-8");
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(store, null, 2), "utf-8");
+  } catch (error) {
+    // FS en lecture seule (serverless/Netlify sans Supabase) : on ne casse
+    // pas la requête, on alerte dans les logs.
+    console.warn(
+      "[data-store] Écriture JSON impossible (système de fichiers en lecture seule ?). " +
+        "Configurez SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY " +
+        "pour une persistance réelle.",
+      error instanceof Error ? error.message : error,
+    );
+  }
 }
 
 /** Retourne le store JSON local (sans toucher à Supabase). */
